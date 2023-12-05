@@ -24,7 +24,8 @@ runs:
              -o pluginval.zip
         unzip pluginval
         # Need to skip gui tests on linux
-        ./pluginval --validate-in-process --strictness-level 10 \
+        ./pluginval --validate-in-process --skip-gui-tests \
+          --strictness-level ${{inputs.level}} \
           --output-dir "." "${{inputs.plugin}}" || exit 1
 
     - name : MacOS Test
@@ -35,8 +36,10 @@ runs:
         curl -L "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip" \
              -o pluginval.zip
         unzip pluginval
-        pluginval.app/Contents/MacOS/pluginval --strictness-level 10 \
-          --validate-in-process --output-dir "." "${{inputs.plugin}}" || exit 1
+        pluginval.app/Contents/MacOS/pluginval \
+          --strictness-level ${{inputs.level}} \
+          --validate-in-process \
+          --output-dir "." "${{inputs.plugin}}" || exit 1
 
     - name : Winodws Test
       if : runner.os == 'Windows'
@@ -46,7 +49,8 @@ runs:
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip -OutFile pluginval.zip
         Expand-Archive pluginval.zip -DestinationPath .
-        .\pluginval.exe --validate-in-process --strictness-level 10 `
+        .\pluginval.exe --validate-in-process `
+          --strictness-level ${{inputs.level}} `
           --output-dir "." "${{inputs.plugin}}" | Out-Host
         if ($LASTEXITCODE -ne 0 ) { Write-Error "FAILED!!!"; exit 1; }
 
