@@ -12,12 +12,12 @@ runs:
   steps:
     - name: Configure CMake
       shell: bash
-      run: cmake -B ${{inputs.build_dir}} -DCMAKE_BUILD_TYPE=${{inputs.build_type}}
+      run: cmake -B ${{inputs.build_dir}} -DCMAKE_BUILD_TYPE=${{inputs.type}}
 
     - name: Build
       shell: bash
-      run: cmake --build ${{inputs.build_dir}} --config ${{inputs.build_type}}
+      run: cmake --build ${{inputs.build_dir}} --config ${{inputs.type}}
 
     - name: Test
       shell: bash
-      run: ctest -C ${{inputs.build_type}} --test-dir ${{inputs.build_dir}} 
+      run: ctest -C ${{inputs.type}} --test-dir ${{inputs.build_dir}} 
