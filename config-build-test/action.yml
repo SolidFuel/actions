@@ -1,0 +1,20 @@
+name: 'Config Compile Test'
+description: Run cmake to configure, compile, and test the repo
+inputs:
+  build_dir :
+    description: directory to use for the build
+    required: true
+  type :
+    description : Build type
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Configure CMake
+      run: cmake -B ${{inputs.build_dir}} -DCMAKE_BUILD_TYPE=${{inputs.build_type}}
+
+    - name: Build
+      run: cmake --build ${{inputs.build_dir}} --config ${{inputs.build_type}}
+
+    - name: Test
+      run: ctest -C ${{inputs.build_type}} --test-dir ${{inputs.build_dir}} 
