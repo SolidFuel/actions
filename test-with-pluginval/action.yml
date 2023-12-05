@@ -19,31 +19,35 @@ runs:
       shell: bash
       run: |
         export DISPLAY=:0
-        cd ${{input.build_dir}}
-        curl -L "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip" -o pluginval.zip
+        cd ${{inputs.build_dir}}
+        curl -L "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip" \
+             -o pluginval.zip
         unzip pluginval
         # Need to skip gui tests on linux
         ./pluginval --validate-in-process --strictness-level 10 \
-          --output-dir "." "${{env.SF_VST3_BUILD_PATH}}/${{env.SF_ARTIFACT_PATH}}/${{env.SF_BUILD_FILE}}" || exit 1
+          --output-dir "." "${{inputs.plugin}}" || exit 1
 
     - name : MacOS Test
       if : runner.os == 'macOS'
       shell: bash
       run: |
-        cd ${{input.build_dir}}
-        curl -L "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip" -o pluginval.zip
+        cd ${{inputs.build_dir}}
+        curl -L "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip" \
+             -o pluginval.zip
         unzip pluginval
         pluginval.app/Contents/MacOS/pluginval --strictness-level 10 \
-          --validate-in-process --output-dir "." ${{input.plugin}} || exit 1
+          --validate-in-process --output-dir "." "${{inputs.plugin}}" || exit 1
 
     - name : Winodws Test
       if : runner.os == 'Windows'
       shell : powershell
       run: |
-        Push-Location ${{input.build_dir}}
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip -OutFile pluginval.zip
+        Set-Location ${{inputs.build_dir}}
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip -OutFile pluginval.zip
         Expand-Archive pluginval.zip -DestinationPath .
-        .\pluginval.exe --validate-in-process --strictness-level 10 --output-dir "." ${{input.plugin}} | Out-Host
+        .\pluginval.exe --validate-in-process --strictness-level 10 `
+          --output-dir "." "${{inputs.plugin}}" | Out-Host
         if ($LASTEXITCODE -ne 0 ) { Write-Error "FAILED!!!"; exit 1; }
 
 
